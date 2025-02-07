@@ -1,0 +1,149 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(69, 52, 52, 0.87);
+  background-color: #ffffff;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  /* margin-top:5rem; */
+  place-items: center;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #724c4c;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  display: block;
+  margin-top: 30px;
+  margin-left: auto;
+  margin-right: auto;
+
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.loginpage {
+   border: 1px solid rgb(255, 255, 255);
+  border-radius: 20px;
+  margin: auto;
+  text-align: center;
+  background-color: #ddc7c7;
+  padding: 5rem;
+}
+.loginheading {
+  font-size: 3rem;
+  text-align: center;
+}
+input{
+    display: block;
+    width: 30rem;
+    height: 7vh;
+    margin-top: 3rem;
+    background-color: #ffffff;
+    border: #ffffff;
+    color:#000000
+}
+
+.navbar {
+ background-color: #724c4c;
+  /* padding: 10px 0; */
+}
+
+.nav-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-item > a {
+  text-decoration: none;
+  color: white;
+  padding: 14px 20px;
+  display: block;
+}
+
+.nav-item > a:hover {
+  background-color: rgb(146, 103, 103);
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: rgb(146, 103, 103);
+  /* min-width: 160px; */
+    list-style: none;
+  z-index: 1;
+  left: 0;
+}
+
+.nav-item:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown-content li {
+  list-style: none;
+}
+
+.dropdown-content a {
+  color: rgb(255, 255, 255);
+  padding: 10px 15px;
+  display: block;
+  text-decoration: none;
+}
+
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
