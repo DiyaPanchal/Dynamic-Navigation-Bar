@@ -44,10 +44,10 @@ export const userRegister = async (
       return res.status(400).json({ message: "Email already exists!" });
     }
     let userAccessibleMenus: string[] = accessibleMenus || [];
-    if (role === "admin") {
-      const allMenus = await MenuItem.find();
-      userAccessibleMenus = allMenus.map((menu) => menu.id.toString());
-    }
+    // if (role === "admin") {
+    //   const allMenus = await MenuItem.find();
+    //   userAccessibleMenus = allMenus.map((menu) => menu.id.toString());
+    // }
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({

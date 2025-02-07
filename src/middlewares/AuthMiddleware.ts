@@ -24,9 +24,8 @@ const authMiddleware = async (
     console.log("Received Token:", token);
     const secretKey = process.env.SECRET_KEY;
     if (!secretKey) {
-      throw new Error("JWT_SECRET is not defined in .env file");
+      throw new Error("secret key is not defined in .env file");
     }
-
     const decodedToken = jwt.verify(token, secretKey) as { user_id: string };
     const user = await User.findById(decodedToken.user_id);
 

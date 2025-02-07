@@ -42,12 +42,28 @@ const Menu = () => {
       } else if (!item.parent) {
         rootItems.push(menuMap[item._id]);
       } else {
-        console.warn("Parent not found for:", item);
+        console.error("Parent not found for:", item);
       }
     });
 
     return rootItems;
   };
+
+const MenuItem = ({ item }) => {
+  return (
+    <li className="nav-item">
+      <a href="https://www.google.com/">{item.title}</a>
+      {item.children.length > 0 && (
+        <ul className="dropdown-content">
+          {item.children.map((child) => (
+            <MenuItem key={child._id} item={child} />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+};
+
 
   return (
     <div className="loginpage">
@@ -61,21 +77,6 @@ const Menu = () => {
         </ul>
       </nav>
     </div>
-  );
-};
-
-const MenuItem = ({ item }) => {
-  return (
-    <li className="nav-item">
-      <a href="#">{item.title}</a>
-      {item.children.length > 0 && (
-        <ul className="dropdown-content">
-          {item.children.map((child) => (
-            <MenuItem key={child._id} item={child} /> 
-          ))}
-        </ul>
-      )}
-    </li>
   );
 };
 
