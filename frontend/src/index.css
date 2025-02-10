@@ -1,5 +1,5 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Inter, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -41,8 +41,6 @@ button {
   font-weight: 500;
   font-family: inherit;
   background-color: #724c4c;
-  cursor: pointer;
-  transition: border-color 0.25s;
   display: block;
   margin-top: 30px;
   margin-left: auto;
@@ -95,11 +93,12 @@ input{
   position: relative;
 }
 
-.nav-item > a {
+.nav-item a {
   text-decoration: none;
   color: white;
   padding: 14px 20px;
   display: block;
+
 }
 
 .nav-item > a:hover {
@@ -113,6 +112,7 @@ input{
   /* min-width: 160px; */
     list-style: none;
   z-index: 1;
+  /* padding: 14px 20px; */
   left: 0;
 }
 
@@ -124,26 +124,67 @@ input{
   list-style: none;
 }
 
-.dropdown-content a {
+/* .dropdown-content a {
   color: rgb(255, 255, 255);
   padding: 10px 15px;
   display: block;
   text-decoration: none;
-}
+} */
 
 .dropdown-content a:hover {
   background-color: #ddd;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.menu-buttons{
+  display: flex;
+}
+.cross-button{
+  margin: 0;
+  padding: 0;
+  color: #724c4c;
+  cursor: pointer;
+  margin-left: 4px;
+  margin-right: 4px;
+
+}
+.menu-select{
+   display: block;
+    /* width: 30rem;
+    height: 7vh; */
+    margin-top: 3rem;
+    border: solid #ffffff 3px;
+    color:#000000;
+    padding: 1rem;
+    /* justify-content: space-between; */
+    
+}
+.selected-menu{
+  display: flex;
+  /* padding: 1rem; */
+  margin-top: 1rem;
+  justify-content: center;
+  align-items: center;
+}
+.selected-menu ul{
+  list-style: none;
+  display: flex;
+}
+.selected-menu li{
+  border: solid #ffff 1px;
+  border-radius: 10px;
+  background-color: #b99d9d;
+  display: flex;
+  padding: 5px;
+  margin-left: 2px;
+  margin-right: 2px;
+}
+/* add menu */
+.menu-parent{
+  display: flex;
+    margin-top: 3rem;
+    padding: 0;
+    justify-content: flex-start;
+}
+.menu-parent select{
+  margin-left:4px;
 }

@@ -6,6 +6,9 @@ import Menu from "./components/Menu";
 import Addmenu from "./components/Addmenu";
 // import Viewmenu from "./components/Viewmenu";
 import "./index.css";
+// import dotenv from "dotenv";
+// dotenv.config();
+
 
 function App() {
   return (

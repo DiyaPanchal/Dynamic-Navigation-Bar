@@ -13,6 +13,7 @@ export const addMenuItem = async (req: AuthRequest, res: Response): Promise<any>
   res.status(201).json(newItem);
 };
 
+
 export const getMenuForUser = async (
   req: AuthRequest,
   res: Response
@@ -32,6 +33,7 @@ export const getMenuForUser = async (
         _id: { $in: user.accessibleMenus },
       }).sort({ priority: 1 });
     }
+
     res.json(menuItems);
   } catch (error) {
     console.error("Error fetching menu items:", error);
@@ -39,3 +41,16 @@ export const getMenuForUser = async (
   }
 };
 
+
+export const getAllMenus = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const menus = await MenuItem.find({}, "_id title");
+    res.json({menus});
+  } catch (error) {
+    console.error("Error fetching menu items:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

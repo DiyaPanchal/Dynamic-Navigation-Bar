@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv/config";
 import User from "../models/User";
 import MenuItem from "../models/MenuItem";
+import mongoose from "mongoose";
 
 const secretKey = process.env.SECRET_KEY as string;
 
@@ -38,16 +39,16 @@ export const userRegister = async (
   res: Response
 ): Promise<any> => {
   try {
-    const { username, email, password, role, accessibleMenus} = req.body;
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "Email already exists!" });
+    const { username, email, password, role, accessibleMenus } = req.body;
+    const menuObjectIds = accessibleMenus.map(
+      (id: string) => new mongoose.Types.ObjectId(id)
+    );
+    const menuDocs = await MenuItem.find({ _id: { $in: menuObjectIds } });
+    if (!menuDocs.length) {
+      return res.status(400).json({ message: "No valid menus found!" });
     }
-    let userAccessibleMenus: string[] = accessibleMenus || [];
-    // if (role === "admin") {
-    //   const allMenus = await MenuItem.find();
-    //   userAccessibleMenus = allMenus.map((menu) => menu.id.toString());
-    // }
+    const menuIds = menuDocs.map((menu) => (menu._id).toString());
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
@@ -55,7 +56,7 @@ export const userRegister = async (
       email,
       password: hashedPassword,
       role: role || "user",
-      accessibleMenus: userAccessibleMenus,
+      accessibleMenus: menuIds,
     });
 
     await newUser.save();
@@ -64,19 +65,5 @@ export const userRegister = async (
   } catch (error) {
     console.error("Registration Error:", error);
     return res.status(500).json({ message: "Error registering user.", error });
-  }
-};
-
-export const userDelete = async (req: Request, res: Response): Promise<any> => {
-  try {
-    const { id } = req.params; 
-    const user = await User.findByIdAndDelete(id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
-    }
-    return res.status(200).json({ message: "User deleted successfully." });
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    return res.status(500).json({ message: "Error deleting user.", error });
   }
 };

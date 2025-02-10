@@ -1,12 +1,6 @@
 import mongoose from "mongoose";
 
-interface IMenuItem extends mongoose.Document {
-  title: string;
-  parent?: mongoose.Types.ObjectId | null;
-  priority: number;
-}
-
-const MenuItemSchema = new mongoose.Schema<IMenuItem>({
+const MenuItemSchema = new mongoose.Schema({
   title: { type: String, required: true },
   parent: {
     type: mongoose.Schema.Types.ObjectId,
@@ -16,6 +10,6 @@ const MenuItemSchema = new mongoose.Schema<IMenuItem>({
   priority: { type: Number, required: true },
 });
 
-const MenuItem = mongoose.model<IMenuItem>("MenuItem", MenuItemSchema);
+const MenuItem = mongoose.model("MenuItem", MenuItemSchema);
 
 export default MenuItem;

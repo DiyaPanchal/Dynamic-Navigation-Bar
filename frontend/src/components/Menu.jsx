@@ -8,7 +8,7 @@ const Menu = () => {
     const fetchMenu = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:3000/menu", {
+        const response = await fetch(`http://localhost:3000/menu`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -29,27 +29,25 @@ const Menu = () => {
   }, []);
 
   const structureMenu = (items) => {
-    const menuMap = {};
-    const rootItems = [];
+  const menuMap = {};
+  const rootItems = [];
 
-    items.forEach((item) => {
-      menuMap[item._id] = { ...item, children: [] };
-    });
+  items.forEach((item) => {
+    menuMap[item._id] = { ...item, children: [] };
+  });
 
-    items.forEach((item) => {
-      if (item.parent && menuMap[item.parent]) {
-        menuMap[item.parent].children.push(menuMap[item._id]);
-      } else if (!item.parent) {
-        rootItems.push(menuMap[item._id]);
-      } else {
-        console.error("Parent not found for:", item);
-      }
-    });
+  items.forEach((item) => {
+    if (item.parent && menuMap[item.parent]) {
+      menuMap[item.parent].children.push(menuMap[item._id]);
+    } else {
+      rootItems.push(menuMap[item._id]);
+    }
+  });
 
-    return rootItems;
-  };
+  return rootItems;
+};
 
-const MenuItem = ({ item }) => {
+  const MenuItem = ({ item }) => {
   return (
     <li className="nav-item">
       <a href="https://www.google.com/">{item.title}</a>
