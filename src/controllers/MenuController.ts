@@ -14,10 +14,28 @@ export const addMenuItem = async (req: AuthRequest, res: Response): Promise<any>
 };
 
 
-export const getMenuForUser = async (
-  req: AuthRequest,
-  res: Response
-): Promise<any> => {
+const getParentItems = async (menuItemIds: string[]) => {
+  const allMenuItems = new Set(menuItemIds);
+
+  const findParents = async (ids: string[]) => {
+    if (ids.length === 0) return;
+
+    const parents = await MenuItem.find({ _id: { $in: ids } }, "parent");
+
+    const parentIds: string[] = parents
+      .map((item) => item.parent?.toString())
+      .filter((parent): parent is string => Boolean(parent));
+    parentIds.forEach((id) => allMenuItems.add(id));
+
+    await findParents(parentIds); 
+  };
+
+
+  await findParents(menuItemIds);
+  return Array.from(allMenuItems);
+};
+
+export const getMenuForUser = async (req: AuthRequest, res: Response) => {
   const user = req.user;
   if (!user) {
     return res.status(401).json({ message: "User not authenticated" });
@@ -25,23 +43,22 @@ export const getMenuForUser = async (
 
   try {
     let menuItems;
-
     if (user.role === "admin") {
       menuItems = await MenuItem.find().sort({ priority: 1 });
     } else {
-      menuItems = await MenuItem.find({
-        _id: { $in: user.accessibleMenus },
-      }).sort({ priority: 1 });
+      const accessibleMenuIds = await getParentItems(user.accessibleMenus);
+      menuItems = await MenuItem.find({ _id: { $in: accessibleMenuIds } }).sort(
+        {
+          priority: 1,
+        }
+      );
     }
-
     res.json(menuItems);
   } catch (error) {
     console.error("Error fetching menu items:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-
 export const getAllMenus = async (
   req: Request,
   res: Response
