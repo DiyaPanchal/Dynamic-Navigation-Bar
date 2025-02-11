@@ -67,3 +67,78 @@ export const userRegister = async (
     return res.status(500).json({ message: "Error registering user.", error });
   }
 };
+export const userUpdate = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+    const { username, email, password, role, accessibleMenus } = req.body;
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found!" });
+    }
+
+    if (password) {
+      user.password = await bcrypt.hash(password, 10);
+    }
+    if (username) user.username = username;
+    if (email) user.email = email;
+    if (role) user.role = role;
+
+    if (accessibleMenus) {
+      const menuObjectIds = accessibleMenus.map(
+        (id: string) => new mongoose.Types.ObjectId(id)
+      );
+      const menuDocs = await MenuItem.find({ _id: { $in: menuObjectIds } });
+      if (!menuDocs.length) {
+        return res.status(400).json({ message: "No valid menus found!" });
+      }
+      user.accessibleMenus = menuDocs.map((menu) => menu._id.toString());
+    }
+
+    await user.save();
+    return res.status(200).json({ message: "User updated successfully." });
+  } catch (error) {
+    console.error("Update Error:", error);
+    return res.status(500).json({ message: "Error updating user.", error });
+  }
+};
+
+export const userDelete = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+    const user = await User.findByIdAndDelete(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found!" });
+    }
+
+    return res.status(200).json({ message: "User deleted successfully." });
+  } catch (error) {
+    console.error("Delete Error:", error);
+    return res.status(500).json({ message: "Error deleting user.", error });
+  }
+};
+
+// export const searchUser = async (req: Request, res: Response): Promise<any> => {
+//   try {
+//     const { email } = req.query;
+//     const user = await User.findOne({ email });
+
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     res.json(user);
+//   } catch (error) {
+//     console.error("Error fetching user:", error);
+//     return res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching users", error });
+  }
+};

@@ -10,7 +10,24 @@ apiRouter.use(bodyParser.json());
 
 apiRouter.post("/login", UserController.userLogin);
 apiRouter.post("/register", authMiddleware,adminMiddleware, UserController.userRegister);
-// apiRouter.delete("/delete/:id",authMiddleware,adminMiddleware, UserController.userDelete);
+apiRouter.delete("/delete/:id",authMiddleware,adminMiddleware, UserController.userDelete);
+apiRouter.put(
+  "/update/:id",
+  authMiddleware,
+  adminMiddleware,
+  UserController.userUpdate
+);
+// apiRouter.get(
+//   "/users",
+//   authMiddleware,
+//   adminMiddleware,
+//   UserController.searchUser
+// );
+apiRouter.get(
+  "/allusers",
+  UserController.getAllUsers
+);
+
 apiRouter.get("/menu", authMiddleware,MenuController.getMenuForUser);
 apiRouter.post("/menu/add",authMiddleware,adminMiddleware,MenuController.addMenuItem);
 apiRouter.get("/menus", MenuController.getAllMenus);

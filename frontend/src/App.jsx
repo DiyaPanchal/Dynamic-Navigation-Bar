@@ -4,6 +4,7 @@ import Register from "./components/Register";
 import Dashboard from "./components/DashBoard";
 import Menu from "./components/Menu";
 import Addmenu from "./components/Addmenu";
+import Edituser from "./components/EditUser";
 // import Viewmenu from "./components/Viewmenu";
 import "./index.css";
 // import dotenv from "dotenv";
@@ -20,6 +21,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/menu/add" element={<Addmenu />} />
+        <Route path="/edit" element={<Edituser />} />
         {/* <Route path="/menu/view" element={<Viewmenu />} /> */}
       </Routes>
     </Router>

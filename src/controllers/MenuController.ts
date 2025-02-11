@@ -35,7 +35,10 @@ const getParentItems = async (menuItemIds: string[]) => {
   return Array.from(allMenuItems);
 };
 
-export const getMenuForUser = async (req: AuthRequest, res: Response) => {
+export const getMenuForUser = async (
+  req: AuthRequest,
+  res: Response
+): Promise<any> => {
   const user = req.user;
   if (!user) {
     return res.status(401).json({ message: "User not authenticated" });

@@ -1,9 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 const Dashboard = () => {
   const [userRole, setUserRole] = useState("");
+  const [userId, setUserId] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -11,6 +12,7 @@ const Dashboard = () => {
       try {
         const decoded = jwtDecode(token);
         setUserRole(decoded.role);
+        setUserId(decoded.user_id);
       } catch (error) {
         console.error("Invalid token", error);
       }
@@ -27,9 +29,15 @@ const Dashboard = () => {
     navigate("/register");
   };
 
-   const addMenu = () => {
-     navigate("/menu/add");
-   };
+  const addMenu = () => {
+    navigate("/menu/add");
+  };
+  const editUser = () => {
+    navigate("/edit");
+  };
+  // const deleteUser = (id) => {
+  //   navigate(`/delete/${id}`);
+  // };
 
   return (
     <div className="loginpage">
@@ -38,6 +46,7 @@ const Dashboard = () => {
       <button onClick={logout}>Logout</button>
       {userRole === "admin" && <button onClick={addUser}>Add User</button>}
       {userRole === "admin" && <button onClick={addMenu}>Add Menu</button>}
+      {userRole === "admin" && <button onClick={editUser}>Edit User</button>}
     </div>
   );
 };
