@@ -49,18 +49,31 @@ export const getMenuForUser = async (
     if (user.role === "admin") {
       menuItems = await MenuItem.find().sort({ priority: 1 });
     } else {
-      const menuIds = user.accessibleMenus.map((menu) => menu.menuId); 
-      const accessibleMenuIds = await getParentItems(menuIds); 
+      const currentDate = new Date();
+
+      const validMenuIds = user.accessibleMenus
+        .filter(
+          (menu) => !menu.expiryDate || new Date(menu.expiryDate) > currentDate
+        )
+        .map((menu) => menu.menuId);
+
+      if (validMenuIds.length === 0) {
+        return res.json([]);
+      }
+
+      const accessibleMenuIds = await getParentItems(validMenuIds);
       menuItems = await MenuItem.find({ _id: { $in: accessibleMenuIds } }).sort(
         { priority: 1 }
       );
     }
+
     res.json(menuItems);
   } catch (error) {
     console.error("Error fetching menu items:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
 export const getAllMenus = async (

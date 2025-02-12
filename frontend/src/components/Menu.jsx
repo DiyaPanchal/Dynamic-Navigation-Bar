@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 
-const Menu = () => {
-  const [menuItems, setMenuItems] = useState([]);
-  const [loading, setLoading] = useState(true); 
+const Menu = ({ menuData = null }) => {
+  const [menuItems, setMenuItems] = useState(menuData || []);
+  const [loading, setLoading] = useState(!menuData);
 
   useEffect(() => {
     fetchMenu();
   }, []);
 
   const fetchMenu = async () => {
-    
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`http://localhost:3000/menu`, {
@@ -26,7 +25,7 @@ const Menu = () => {
       console.error("Menu fetch error:", error);
       alert(error.message);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -54,9 +53,7 @@ const Menu = () => {
   const MenuItem = ({ item }) => {
     return (
       <li className="nav-item">
-        <a href="https://www.google.com/">
-          {item.title}
-        </a>
+        <a href="https://www.google.com/">{item.title}</a>
         {item.children?.length > 0 && (
           <ul className="dropdown-content">
             {item.children.map((child) => (
@@ -73,7 +70,7 @@ const Menu = () => {
       <nav className="navbar">
         <ul className="nav-links">
           {loading ? (
-            <p>Loading menu...</p> 
+            <p>Loading menu...</p>
           ) : menuItems.length === 0 ? (
             <p>No menu items available.</p>
           ) : (

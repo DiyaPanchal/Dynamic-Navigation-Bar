@@ -62,8 +62,9 @@ const EditUser = () => {
     setSelectedUser(user);
 
     if (user.accessibleMenus) {
+      // console.log("User menus :", user.accessibleMenus)
       const menuIds = user.accessibleMenus.map((menu) =>
-        typeof menu === "string" ? menu : menu._id
+        typeof menu === "string" ? menu : menu.menuId
       );
       // console.log("Menus:", menuIds);
 
@@ -108,7 +109,6 @@ const deleteUser = async (userId) => {
   const removeMenu = (menuId) => {
     setSelectedMenus(selectedMenus.filter((id) => id !== menuId));
   };
-
   const updateUserBack = async () => {
     await updateUser();
     navigate("/dashboard");
@@ -217,10 +217,12 @@ const deleteUser = async (userId) => {
             <label>Selected Menus:</label>
             {selectedMenus.map((menuId) => {
               const menu = menus.find((m) => m._id === menuId);
+              // console.log(menu)
+              // console.log(selectedMenus)
               return (
                 menu && (
                   <p key={menu._id} className="edit-menu">
-                    {menu.title}
+                    {menu.title}{" "}
                     <p
                       className="cross-button"
                       onClick={() => removeMenu(menu._id)}

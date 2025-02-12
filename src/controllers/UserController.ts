@@ -5,16 +5,16 @@ import dotenv from "dotenv/config";
 import User from "../models/User";
 import MenuItem from "../models/MenuItem";
 import mongoose from "mongoose";
-import logger from "../utils/logger.js"
+import logger from "../utils/logger.js";
 const secretKey = process.env.SECRET_KEY as string;
 import { sendMenuUpdateNotification } from "../utils/notification";
 interface AuthRequest extends Request {
-  user?: { id: string; role: string }; 
+  user?: { id: string; role: string };
 }
 
 export const userLogin = async (req: Request, res: Response): Promise<any> => {
   try {
-    const {email, password } = req.body;
+    const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "User not found!" });
@@ -127,6 +127,7 @@ export const userUpdate = async (
       const oldMenuDocs = await MenuItem.find({
         _id: { $in: user.accessibleMenus.map((m) => m.menuId) },
       });
+      console.log("old menu:",oldMenuDocs);
 
       oldMenuNames = oldMenuDocs.map((menu) => menu.title);
       newMenuNames = menuDocs.map((menu) => menu.title);
@@ -139,7 +140,8 @@ export const userUpdate = async (
             : null,
         })
       );
-
+      console.log("user access:",user.accessibleMenus);
+      console.log("updates",updatedMenus);
       if (
         JSON.stringify(user.accessibleMenus) !== JSON.stringify(updatedMenus)
       ) {
@@ -157,6 +159,10 @@ export const userUpdate = async (
     if (role) user.role = role;
 
     await user.save();
+     logger.info(`Admin updated user: ${id}`, {
+      adminId: req.user?.id || "Unknown",
+      updatedUser: user.toJSON(),
+    });
 
     if (menusChanged) {
       sendMenuUpdateNotification(user.email, oldMenuNames, newMenuNames);
@@ -168,8 +174,6 @@ export const userUpdate = async (
     return res.status(500).json({ message: "Error updating user.", error });
   }
 };
-
-
 
 export const userDelete = async (
   req: AuthRequest,
@@ -184,7 +188,6 @@ export const userDelete = async (
     }
     const adminId = req.user?.id || "Unknown";
 
-    
     logger.warn({
       message: "User deleted",
       adminId,

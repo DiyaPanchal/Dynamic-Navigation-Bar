@@ -6,7 +6,7 @@ import dotenv from "dotenv/config";
 const secretKey = process.env.SECRET_KEY as string;
 
 interface AuthRequest extends Request {
-  user?: { id: string; role: string };
+  user?: { id: string; role: string; accessibleMenus?: any[] };
 }
 
 const authMiddleware = async (
@@ -24,13 +24,21 @@ const authMiddleware = async (
       user_id: string;
       role: string;
     };
-    const user = await User.findById(decoded.user_id);
+
+    const user = await User.findById(decoded.user_id).populate(
+      "accessibleMenus"
+    );
 
     if (!user) {
       return res.status(401).json({ message: "User not found!" });
     }
 
-    req.user = { id: (user._id as string).toString(), role: user.role };
+    req.user = {
+      id: (user._id as string).toString(),
+      role: user.role,
+      accessibleMenus: user.accessibleMenus || [], 
+    };
+
     next();
   } catch (error) {
     res.status(401).json({ message: "Invalid token!" });
