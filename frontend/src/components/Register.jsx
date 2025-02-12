@@ -39,16 +39,30 @@ function Register() {
 
     const selectedMenu = menuOptions.find((menu) => menu._id === selectedId);
     if (selectedMenu) {
-      setSelectedMenus([...selectedMenus, selectedMenu]);
+      setSelectedMenus([
+        ...selectedMenus,
+        { menuId: selectedMenu._id, title: selectedMenu.title, expiryDate: "" },
+      ]);
       setMenuOptions(menuOptions.filter((menu) => menu._id !== selectedId));
     }
   };
 
+  const handleExpiryChange = (menuId, expiryDate) => {
+    setSelectedMenus(
+      selectedMenus.map((menu) =>
+        menu.menuId === menuId ? { ...menu, expiryDate } : menu
+      )
+    );
+  };
+
   const handleRemoveMenu = (menuId) => {
-    const removedMenu = selectedMenus.find((menu) => menu._id === menuId);
+    const removedMenu = selectedMenus.find((menu) => menu.menuId === menuId);
     if (removedMenu) {
-      setMenuOptions([...menuOptions, removedMenu]);
-      setSelectedMenus(selectedMenus.filter((menu) => menu._id !== menuId));
+      setMenuOptions([
+        ...menuOptions,
+        { _id: removedMenu.menuId, title: removedMenu.title },
+      ]);
+      setSelectedMenus(selectedMenus.filter((menu) => menu.menuId !== menuId));
     }
   };
 
@@ -66,7 +80,10 @@ function Register() {
           email,
           password,
           role,
-          accessibleMenus: selectedMenus.map((menu) => menu._id),
+          accessibleMenus: selectedMenus.map(({ menuId, expiryDate }) => ({
+            menuId,
+            expiryDate: expiryDate ? new Date(expiryDate).toISOString() : null,
+          })),
         }),
       });
 
@@ -85,11 +102,13 @@ function Register() {
       alert(error.message);
     }
   };
+
   const handleBackRegister = async () => {
     await handleRegister();
     navigate("/dashboard");
   };
-  const handleCancel = async () => {
+
+  const handleCancel = () => {
     setUsername("");
     setEmail("");
     setPassword("");
@@ -127,7 +146,7 @@ function Register() {
       <div className="menu-select">
         <label>Select Accessible Menus:</label>
         {loading ? (
-          <p>Loading menu options</p>
+          <p>Loading menu options...</p>
         ) : (
           <>
             <select onChange={handleMenuSelection}>
@@ -144,14 +163,21 @@ function Register() {
               {selectedMenus.length > 0 ? (
                 <ul>
                   {selectedMenus.map((menu) => (
-                    <li key={menu._id}>
+                    <li key={menu.menuId}>
                       {menu.title}
-                      <p
+                      <input className="date-input"
+                        type="date"
+                        value={menu.expiryDate}
+                        onChange={(e) =>
+                          handleExpiryChange(menu.menuId, e.target.value)
+                        }
+                      />
+                      <span
                         className="cross-button"
-                        onClick={() => handleRemoveMenu(menu._id)}
+                        onClick={() => handleRemoveMenu(menu.menuId)}
                       >
                         x
-                      </p>
+                      </span>
                     </li>
                   ))}
                 </ul>

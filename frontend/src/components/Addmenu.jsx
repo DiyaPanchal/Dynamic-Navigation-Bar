@@ -74,7 +74,6 @@ function AddMenu() {
   return (
     <div className="loginpage">
       <h2 className="loginheading">Add Menu Item</h2>
-
       <input
         type="text"
         placeholder="Title"

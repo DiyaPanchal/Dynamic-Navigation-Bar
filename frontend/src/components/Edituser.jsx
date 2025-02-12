@@ -108,6 +108,7 @@ const deleteUser = async (userId) => {
   const removeMenu = (menuId) => {
     setSelectedMenus(selectedMenus.filter((id) => id !== menuId));
   };
+
   const updateUserBack = async () => {
     await updateUser();
     navigate("/dashboard");
@@ -219,7 +220,7 @@ const deleteUser = async (userId) => {
               return (
                 menu && (
                   <p key={menu._id} className="edit-menu">
-                    {menu.title}{" "}
+                    {menu.title}
                     <p
                       className="cross-button"
                       onClick={() => removeMenu(menu._id)}

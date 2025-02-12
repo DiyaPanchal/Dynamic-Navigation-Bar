@@ -9,6 +9,7 @@ const Menu = () => {
   }, []);
 
   const fetchMenu = async () => {
+    
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`http://localhost:3000/menu`, {
@@ -53,7 +54,7 @@ const Menu = () => {
   const MenuItem = ({ item }) => {
     return (
       <li className="nav-item">
-        <a href="#" onClick={(e) => e.preventDefault()}>
+        <a href="https://www.google.com/">
           {item.title}
         </a>
         {item.children?.length > 0 && (

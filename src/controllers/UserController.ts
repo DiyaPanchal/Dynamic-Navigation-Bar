@@ -5,8 +5,12 @@ import dotenv from "dotenv/config";
 import User from "../models/User";
 import MenuItem from "../models/MenuItem";
 import mongoose from "mongoose";
-
+import logger from "../utils/logger.js"
 const secretKey = process.env.SECRET_KEY as string;
+import { sendMenuUpdateNotification } from "../utils/notification";
+interface AuthRequest extends Request {
+  user?: { id: string; role: string }; 
+}
 
 export const userLogin = async (req: Request, res: Response): Promise<any> => {
   try {
@@ -40,14 +44,31 @@ export const userRegister = async (
 ): Promise<any> => {
   try {
     const { username, email, password, role, accessibleMenus } = req.body;
-    const menuObjectIds = accessibleMenus.map(
-      (id: string) => new mongoose.Types.ObjectId(id)
+
+    if (!Array.isArray(accessibleMenus) || accessibleMenus.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Accessible menus must be provided." });
+    }
+    const menuEntries = accessibleMenus.map(
+      (menu: { menuId: string; expiryDate?: string }) => {
+        if (!menu.menuId || typeof menu.menuId !== "string") {
+          throw new Error("Invalid menuId provided!");
+        }
+
+        return {
+          menuId: new mongoose.Types.ObjectId(menu.menuId),
+          expiryDate: menu.expiryDate ? new Date(menu.expiryDate) : undefined,
+        };
+      }
     );
-    const menuDocs = await MenuItem.find({ _id: { $in: menuObjectIds } });
+
+    const menuIds = menuEntries.map((menu) => menu.menuId);
+    const menuDocs = await MenuItem.find({ _id: { $in: menuIds } });
+
     if (!menuDocs.length) {
       return res.status(400).json({ message: "No valid menus found!" });
     }
-    const menuIds = menuDocs.map((menu) => (menu._id).toString());
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -56,7 +77,7 @@ export const userRegister = async (
       email,
       password: hashedPassword,
       role: role || "user",
-      accessibleMenus: menuIds,
+      accessibleMenus: menuEntries,
     });
 
     await newUser.save();
@@ -67,14 +88,65 @@ export const userRegister = async (
     return res.status(500).json({ message: "Error registering user.", error });
   }
 };
-export const userUpdate = async (req: Request, res: Response): Promise<any> => {
+
+export const userUpdate = async (
+  req: AuthRequest,
+  res: Response
+): Promise<any> => {
   try {
     const { id } = req.params;
-    const { username, email, password, role, accessibleMenus } = req.body;
+    const {
+      username,
+      email,
+      password,
+      role,
+      accessibleMenus,
+      menuAccessExpiry,
+    } = req.body;
 
     const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ message: "User not found!" });
+    }
+
+    let menusChanged = false;
+    let oldMenuNames: string[] = [];
+    let newMenuNames: string[] = [];
+
+    if (accessibleMenus) {
+      const menuObjectIds = accessibleMenus.map(
+        (id: string) => new mongoose.Types.ObjectId(id)
+      );
+
+      const menuDocs = await MenuItem.find({ _id: { $in: menuObjectIds } });
+
+      if (!menuDocs.length) {
+        return res.status(400).json({ message: "No valid menus found!" });
+      }
+
+      const oldMenuDocs = await MenuItem.find({
+        _id: { $in: user.accessibleMenus.map((m) => m.menuId) },
+      });
+
+      oldMenuNames = oldMenuDocs.map((menu) => menu.title);
+      newMenuNames = menuDocs.map((menu) => menu.title);
+
+      const updatedMenus = accessibleMenus.map(
+        (menuId: string, index: number) => ({
+          menuId: new mongoose.Types.ObjectId(menuId),
+          expiryDate: menuAccessExpiry?.[index]
+            ? new Date(menuAccessExpiry[index])
+            : null,
+        })
+      );
+
+      if (
+        JSON.stringify(user.accessibleMenus) !== JSON.stringify(updatedMenus)
+      ) {
+        menusChanged = true;
+      }
+
+      user.accessibleMenus = updatedMenus;
     }
 
     if (password) {
@@ -84,18 +156,12 @@ export const userUpdate = async (req: Request, res: Response): Promise<any> => {
     if (email) user.email = email;
     if (role) user.role = role;
 
-    if (accessibleMenus) {
-      const menuObjectIds = accessibleMenus.map(
-        (id: string) => new mongoose.Types.ObjectId(id)
-      );
-      const menuDocs = await MenuItem.find({ _id: { $in: menuObjectIds } });
-      if (!menuDocs.length) {
-        return res.status(400).json({ message: "No valid menus found!" });
-      }
-      user.accessibleMenus = menuDocs.map((menu) => menu._id.toString());
+    await user.save();
+
+    if (menusChanged) {
+      sendMenuUpdateNotification(user.email, oldMenuNames, newMenuNames);
     }
 
-    await user.save();
     return res.status(200).json({ message: "User updated successfully." });
   } catch (error) {
     console.error("Update Error:", error);
@@ -103,14 +169,29 @@ export const userUpdate = async (req: Request, res: Response): Promise<any> => {
   }
 };
 
-export const userDelete = async (req: Request, res: Response): Promise<any> => {
+
+
+export const userDelete = async (
+  req: AuthRequest,
+  res: Response
+): Promise<any> => {
   try {
     const { id } = req.params;
-    const user = await User.findByIdAndDelete(id);
+    const deletedUser = await User.findByIdAndDelete(id);
 
-    if (!user) {
+    if (!deletedUser) {
       return res.status(404).json({ message: "User not found!" });
     }
+    const adminId = req.user?.id || "Unknown";
+
+    
+    logger.warn({
+      message: "User deleted",
+      adminId,
+      userId: deletedUser?._id?.toString() || "Unknown",
+      action: "DELETE_USER",
+      timestamp: new Date().toISOString(),
+    });
 
     return res.status(200).json({ message: "User deleted successfully." });
   } catch (error) {

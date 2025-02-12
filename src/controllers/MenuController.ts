@@ -49,11 +49,10 @@ export const getMenuForUser = async (
     if (user.role === "admin") {
       menuItems = await MenuItem.find().sort({ priority: 1 });
     } else {
-      const accessibleMenuIds = await getParentItems(user.accessibleMenus);
+      const menuIds = user.accessibleMenus.map((menu) => menu.menuId); 
+      const accessibleMenuIds = await getParentItems(menuIds); 
       menuItems = await MenuItem.find({ _id: { $in: accessibleMenuIds } }).sort(
-        {
-          priority: 1,
-        }
+        { priority: 1 }
       );
     }
     res.json(menuItems);
@@ -62,6 +61,8 @@ export const getMenuForUser = async (
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
 export const getAllMenus = async (
   req: Request,
   res: Response

@@ -169,10 +169,16 @@ input {
   border: solid #ffff 1px;
   border-radius: 10px;
   background-color: #b99d9d;
-  display: flex;
+  /* display: flex; */
   padding: 5px;
   margin-left: 2px;
   margin-right: 2px;
+}
+.date-input{
+  width: 100%;
+  display: flex;
+  margin: 0;
+  padding: 0;
 }
 /* add menu */
 .menu-parent {
