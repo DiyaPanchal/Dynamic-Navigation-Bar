@@ -339,7 +339,6 @@ const updateUser = async () => {
 
               <h4>Current Menu Access:</h4>
               <Menu menuData={preview.currentAccess} />
-
               <h4>New Menu Access:</h4>
               <Menu menuData={preview.proposedAccess} />
 
