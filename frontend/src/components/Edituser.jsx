@@ -80,17 +80,18 @@ const EditUser = () => {
     setSelectedUser(user);
 
     if (user.accessibleMenus) {
-      // console.log("User menus :", user.accessibleMenus)
-      const menuIds = user.accessibleMenus.map((menu) =>
-        typeof menu === "string" ? menu : menu.menuId
+      const normalizedMenus = user.accessibleMenus.map(
+        (menu) =>
+          typeof menu === "string"
+            ? { menuId: menu, expiryDate: null } 
+            : { menuId: menu.menuId, expiryDate: menu.expiryDate || null }
       );
-      // console.log("Menus:", menuIds);
-
-      setSelectedMenus(menuIds);
+      setSelectedMenus(normalizedMenus);
     } else {
       setSelectedMenus([]);
     }
   };
+
 
 
 const deleteUser = async (userId) => {
@@ -119,30 +120,31 @@ const deleteUser = async (userId) => {
   }
 };
 
-  const handleMenuSelect = (menuId) => {
-    if (!selectedMenus.includes(menuId)) {
-      setSelectedMenus([...selectedMenus, menuId]);
-    }
-  };
-  // const handleMenuSelect = (event) => {
-  //   const menuId = event.target.value;
-
-  //   // Check if the menu is already in selectedMenus
-  //   if (!selectedMenus.some((menu) => menu.menuId === menuId)) {
-  //     setSelectedMenus((prevMenus) => [
-  //       ...prevMenus,
-  //       { menuId, expiryDate: "2025-12-31T23:59:59.000Z" },
-  //     ]);
+  // const handleMenuSelect = (menuId) => {
+  //   if (!selectedMenus.includes(menuId)) {
+  //     setSelectedMenus([...selectedMenus, menuId]);
   //   }
+  // };
+const handleMenuSelect = (menuId) => {
+  if (menuId && !selectedMenus.some((menu) => menu.menuId === menuId)) {
+    setSelectedMenus([
+      ...selectedMenus,
+      { menuId, expiryDate: null },
+    ]);
+  }
+};
 
-  //   console.log("Updated Selected Menus:", selectedMenus);
+  // const removeMenu = (menuId) => {
+  //   setSelectedMenus(selectedMenus.filter((id) => id !== menuId));
   // };
 
-
-
   const removeMenu = (menuId) => {
-    setSelectedMenus(selectedMenus.filter((id) => id !== menuId));
+    setSelectedMenus((prevMenus) =>
+      prevMenus.filter((menu) => menu.menuId !== menuId)
+    );
   };
+
+
   const updateUserBack = async () => {
     await updateUser();
     navigate("/dashboard");
@@ -168,10 +170,10 @@ const handlePreviewAccess = () => {
 // console.log("preview.current", preview.currentAccess);
 // console.log("preview.proposed", preview.proposedAccess);
 
-const handleExpiryChange = (menuId, newDate) => {
+const handleExpiryChange = (menuId, newExpiryDate) => {
   setSelectedMenus((prevMenus) =>
     prevMenus.map((menu) =>
-      menu.menuId === menuId ? { ...menu, expiryDate: newDate } : menu
+      menu.menuId === menuId ? { ...menu, expiryDate: newExpiryDate } : menu
     )
   );
 };
@@ -189,7 +191,10 @@ const updateUser = async () => {
 
     const updatedData = {
       ...selectedUser,
-      accessibleMenus: selectedMenus
+      accessibleMenus: selectedMenus.map((menu) => ({
+        menuId: menu.menuId,
+        expiryDate: menu.expiryDate || "2025-12-31",
+      })),
     };
 
     console.log("Final Payload Sent:", updatedData);
@@ -277,31 +282,35 @@ const updateUser = async () => {
             <option value="user">User</option>
             <option value="admin">Admin</option>
           </select>
-
           <div className="edit-section">
             <label>Selected Menus:</label>
-            {selectedMenus.map((menuId) => {
-              const menu = menus.find((m) => m._id === menuId);
-              // console.log(menu)
-              // console.log(selectedMenus)
+            {selectedMenus.map((menu) => {
+              const menuData = menus.find((m) => m._id === menu.menuId);
+              console.log("Selected menus", selectedMenus);
+        
+              console.log("menuData",menuData);
+              console.log("menus",menus);
+
               return (
-                menu && (
-                  <p key={menu._id} className="edit-menu">
-                    {menu.title}{" "}
+                menuData && (
+                  <p key={menu.menuId} className="edit-menu">
+                    {menuData.title}{" "}
                     <input
                       className="date-input"
                       type="date"
-                      value={menu.expiryDate}
+                      value={
+                        menu.expiryDate ? menu.expiryDate.split("T")[0] : ""
+                      }
                       onChange={(e) =>
                         handleExpiryChange(menu.menuId, e.target.value)
                       }
                     />
-                    <p
+                    <span
                       className="cross-button"
-                      onClick={() => removeMenu(menu._id)}
+                      onClick={() => removeMenu(menu.menuId)}
                     >
                       x
-                    </p>
+                    </span>
                   </p>
                 )
               );
@@ -314,13 +323,16 @@ const updateUser = async () => {
               Select Menu
             </option>
             {menus
-              .filter((menu) => !selectedMenus.includes(menu._id))
+              .filter(
+                (menu) => !selectedMenus.some((sm) => sm.menuId === menu._id)
+              )
               .map((menu) => (
                 <option key={menu._id} value={menu._id}>
                   {menu.title}
                 </option>
               ))}
           </select>
+
           {showPopup && preview && (
             <div className="popup">
               <h3>Are you sure you want to update the access?</h3>

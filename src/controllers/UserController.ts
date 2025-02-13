@@ -113,43 +113,45 @@ export const userUpdate = async (
     let oldMenuNames: string[] = [];
     let newMenuNames: string[] = [];
 
-    if (accessibleMenus) {
-      const menuObjectIds = accessibleMenus.map(
-        (id: string) => new mongoose.Types.ObjectId(id)
-      );
+   if (accessibleMenus) {
+     const menuObjectIds = accessibleMenus.map(
+       (menu: { menuId: string }) => new mongoose.Types.ObjectId(menu.menuId)
+     );
 
-      const menuDocs = await MenuItem.find({ _id: { $in: menuObjectIds } });
+     const menuDocs = await MenuItem.find({ _id: { $in: menuObjectIds } });
 
-      if (!menuDocs.length) {
-        return res.status(400).json({ message: "No valid menus found!" });
-      }
+     if (!menuDocs.length) {
+       return res.status(400).json({ message: "No valid menus found!" });
+     }
 
-      const oldMenuDocs = await MenuItem.find({
-        _id: { $in: user.accessibleMenus.map((m) => m.menuId) },
-      });
-      console.log("old menu:",oldMenuDocs);
+     const oldMenuDocs = await MenuItem.find({
+       _id: { $in: user.accessibleMenus.map((m) => m.menuId) },
+     });
 
-      oldMenuNames = oldMenuDocs.map((menu) => menu.title);
-      newMenuNames = menuDocs.map((menu) => menu.title);
+     oldMenuNames = oldMenuDocs.map((menu) => menu.title);
+     newMenuNames = menuDocs.map((menu) => menu.title);
 
-      const updatedMenus = accessibleMenus.map(
-        (menuId: string, index: number) => ({
-          menuId: new mongoose.Types.ObjectId(menuId),
-          expiryDate: menuAccessExpiry?.[index]
-            ? new Date(menuAccessExpiry[index])
-            : null,
-        })
-      );
-      console.log("user access:",user.accessibleMenus);
-      console.log("updates",updatedMenus);
-      if (
-        JSON.stringify(user.accessibleMenus) !== JSON.stringify(updatedMenus)
-      ) {
-        menusChanged = true;
-      }
+     const updatedMenus = accessibleMenus.map(
+       (menu: { menuId: string; expiryDate?: string }) => ({
+         menuId: new mongoose.Types.ObjectId(menu.menuId),
+         expiryDate: menu.expiryDate ? new Date(menu.expiryDate) : null,
+       })
+     );
 
-      user.accessibleMenus = updatedMenus;
-    }
+     console.log("user access:", user.accessibleMenus);
+     console.log("updates:", updatedMenus);
+
+     if (
+       JSON.stringify(user.accessibleMenus) !== JSON.stringify(updatedMenus)
+     ) {
+       menusChanged = true;
+     }
+     user.accessibleMenus.splice(
+       0,
+       user.accessibleMenus.length,
+       ...updatedMenus
+     );
+   }
 
     if (password) {
       user.password = await bcrypt.hash(password, 10);

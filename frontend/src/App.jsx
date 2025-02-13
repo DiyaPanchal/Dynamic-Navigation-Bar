@@ -4,7 +4,7 @@ import Register from "./components/Register";
 import Dashboard from "./components/DashBoard";
 import Menu from "./components/Menu";
 import Addmenu from "./components/Addmenu";
-import Edituser from "./components/EditUser";
+import Edituser from "./components/Edituser";
 // import Viewmenu from "./components/Viewmenu";
 import "./index.css";
 // import dotenv from "dotenv";
