@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Menu from "./Menu";
 
 const EditUser = () => {
   const [users, setUsers] = useState([]);
@@ -10,6 +11,8 @@ const EditUser = () => {
   const [selectedMenus, setSelectedMenus] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [preview, setPreview] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -58,6 +61,21 @@ const EditUser = () => {
     setFilteredUsers(filtered);
   };
 
+  // const selectUser = (user) => {
+  //   setSelectedUser(user);
+
+  //   if (user.accessibleMenus) {
+  //     // console.log("User menus :", user.accessibleMenus)
+  //     const menuIds = user.accessibleMenus.map((menu) =>
+  //       typeof menu === "string" ? menu : menu.menuId
+  //     );
+  //     // console.log("Menus:", menuIds);
+
+  //     setSelectedMenus(menuIds);
+  //   } else {
+  //     setSelectedMenus([]);
+  //   }
+  // };
   const selectUser = (user) => {
     setSelectedUser(user);
 
@@ -73,6 +91,7 @@ const EditUser = () => {
       setSelectedMenus([]);
     }
   };
+
 
 const deleteUser = async (userId) => {
   if (!window.confirm("Are you sure you want to delete this user?")) return;
@@ -105,6 +124,21 @@ const deleteUser = async (userId) => {
       setSelectedMenus([...selectedMenus, menuId]);
     }
   };
+  // const handleMenuSelect = (event) => {
+  //   const menuId = event.target.value;
+
+  //   // Check if the menu is already in selectedMenus
+  //   if (!selectedMenus.some((menu) => menu.menuId === menuId)) {
+  //     setSelectedMenus((prevMenus) => [
+  //       ...prevMenus,
+  //       { menuId, expiryDate: "2025-12-31T23:59:59.000Z" },
+  //     ]);
+  //   }
+
+  //   console.log("Updated Selected Menus:", selectedMenus);
+  // };
+
+
 
   const removeMenu = (menuId) => {
     setSelectedMenus(selectedMenus.filter((id) => id !== menuId));
@@ -113,44 +147,75 @@ const deleteUser = async (userId) => {
     await updateUser();
     navigate("/dashboard");
   };
+const handlePreviewAccess = () => {
+  if (!selectedUser) return;
 
-  const updateUser = async () => {
-    setError("");
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("Unauthorized: No token found");
-        setLoading(false);
-        return;
-      }
+  const proposedAccessFormatted = selectedMenus.map((menu) => ({
+    menuId: menu.menuId,
+    expiryDate: menu.expiryDate || "2025-12-31T23:59:59.000Z",
+    _id: menu.menuId,
+  }));
 
-      const updatedData = {
-        ...selectedUser,
-        accessibleMenus: selectedMenus,
-      };
+  setPreview({
+    currentAccess: [...(selectedUser.accessibleMenus || [])],
+    proposedAccess: proposedAccessFormatted,
+  });
 
-      const response = await fetch(
-        `http://localhost:3000/update/${selectedUser._id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(updatedData),
-        }
-      );
+  setShowPopup(true);
+};
 
-      if (!response.ok) throw new Error("Error updating user");
-      alert("User updated successfully!");
-      fetchUsers();
-      setSelectedUser(null);
-    } catch (err) {
-      setError("Error updating user");
+
+// console.log("preview.current", preview.currentAccess);
+// console.log("preview.proposed", preview.proposedAccess);
+
+const handleExpiryChange = (menuId, newDate) => {
+  setSelectedMenus((prevMenus) =>
+    prevMenus.map((menu) =>
+      menu.menuId === menuId ? { ...menu, expiryDate: newDate } : menu
+    )
+  );
+};
+
+const updateUser = async () => {
+  setError("");
+  setLoading(true);
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("Unauthorized: No token found");
+      setLoading(false);
+      return;
     }
-    setLoading(false);
-  };
+
+    const updatedData = {
+      ...selectedUser,
+      accessibleMenus: selectedMenus
+    };
+
+    console.log("Final Payload Sent:", updatedData);
+
+    const response = await fetch(
+      `http://localhost:3000/update/${selectedUser._id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedData),
+      }
+    );
+
+    if (!response.ok) throw new Error("Error updating user");
+    alert("User updated successfully!");
+    fetchUsers();
+    setSelectedUser(null);
+  } catch (err) {
+    setError("Error updating user");
+    console.error("Update Error:", err);
+  }
+  setLoading(false);
+};
 
   return (
     <div className="loginpage editpage">
@@ -223,6 +288,14 @@ const deleteUser = async (userId) => {
                 menu && (
                   <p key={menu._id} className="edit-menu">
                     {menu.title}{" "}
+                    <input
+                      className="date-input"
+                      type="date"
+                      value={menu.expiryDate}
+                      onChange={(e) =>
+                        handleExpiryChange(menu.menuId, e.target.value)
+                      }
+                    />
                     <p
                       className="cross-button"
                       onClick={() => removeMenu(menu._id)}
@@ -248,11 +321,26 @@ const deleteUser = async (userId) => {
                 </option>
               ))}
           </select>
+          {showPopup && preview && (
+            <div className="popup">
+              <h3>Are you sure you want to update the access?</h3>
+
+              <h4>Current Menu Access:</h4>
+              <Menu menuData={preview.currentAccess} />
+
+              <h4>New Menu Access:</h4>
+              <Menu menuData={preview.proposedAccess} />
+
+              <button onClick={updateUser}>Confirm</button>
+              <button onClick={() => setShowPopup(false)}>Cancel</button>
+            </div>
+          )}
+
           <div className="menu-buttons">
-            <button onClick={updateUser} disabled={loading}>
+            <button onClick={handlePreviewAccess} disabled={loading}>
               Save
             </button>
-            <button onClick={updateUserBack} disabled={loading}>
+            <button onClick={handlePreviewAccess} disabled={loading}>
               Save & Back
             </button>
           </div>
