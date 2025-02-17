@@ -1,10 +1,5 @@
-import mongoose, { Schema, Document } from "mongoose";
-
-export interface IAccessibleMenu {
-  menuId: mongoose.Types.ObjectId;
-  expiryDate?: Date;
-}
-export interface IUser extends Document {
+import mongoose from "mongoose";
+export interface IUser {
   username: string;
   email: string;
   password: string;
@@ -12,8 +7,7 @@ export interface IUser extends Document {
   accessibleMenus: { menuId: string; expiryDate?: Date }[]; 
 }
 
-
-const UserSchema: Schema = new Schema({
+const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
