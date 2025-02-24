@@ -10,28 +10,28 @@ function Register() {
   const [selectedMenus, setSelectedMenus] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
+  
   useEffect(() => {
-    const fetchMenus = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/menus");
-        if (!response.ok) throw new Error("Failed to fetch menus");
-
-        const data = await response.json();
-        if (!data.menus || !Array.isArray(data.menus)) {
-          throw new Error("Invalid menu data format");
-        }
-        setMenuOptions(data.menus);
-      } catch (error) {
-        console.error("Error fetching menu items:", error);
-        setMenuOptions([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchMenus();
   }, []);
+  const fetchMenus = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("http://localhost:3000/menus");
+      if (!response.ok) throw new Error("Failed to fetch menus");
+
+      const data = await response.json();
+      if (!data.menus || !Array.isArray(data.menus)) {
+        throw new Error("Invalid menu data format");
+      }
+      setMenuOptions(data.menus);
+    } catch (error) {
+      console.error("Error fetching menu items:", error);
+      setMenuOptions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleMenuSelection = (e) => {
     const selectedId = e.target.value;
@@ -98,11 +98,11 @@ function Register() {
       setPassword("");
       setRole("user");
       setSelectedMenus([]);
+      fetchMenus();
     } catch (error) {
       alert(error.message);
     }
   };
-
   const handleBackRegister = async () => {
     await handleRegister();
     navigate("/dashboard");
