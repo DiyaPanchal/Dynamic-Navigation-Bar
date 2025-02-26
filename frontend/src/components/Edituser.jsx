@@ -37,7 +37,7 @@ const EditUser = () => {
       if (!response.ok) throw new Error("Failed to fetch menus");
 
       const data = await response.json();
-      if (data.menus && Array.isArray(data.menus)) {
+      if (data.menus) {
         setMenus(data.menus);
       } else {
         throw new Error("Menus data is not an array");
@@ -149,6 +149,7 @@ const handleMenuSelect = (menuId) => {
     await updateUser();
     navigate("/dashboard");
   };
+  
 const handlePreviewAccess = () => {
   if (!selectedUser) return;
 
@@ -348,10 +349,10 @@ const updateUser = async () => {
           )}
 
           <div className="menu-buttons">
-            <button onClick={handlePreviewAccess} disabled={loading}>
+            <button onClick={updateUser} disabled={loading}>
               Save
             </button>
-            <button onClick={handlePreviewAccess} disabled={loading}>
+            <button onClick={updateUserBack} disabled={loading}>
               Save & Back
             </button>
           </div>

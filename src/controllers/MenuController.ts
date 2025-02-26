@@ -13,7 +13,6 @@ export const addMenuItem = async (req: AuthRequest, res: Response): Promise<any>
   res.status(201).json(newItem);
 };
 
-
 const getParentItems = async (menuItemIds: string[]) => {
   const allMenuItems = new Set(menuItemIds);
 
@@ -73,8 +72,6 @@ export const getMenuForUser = async (
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-
 
 export const getAllMenus = async (
   req: Request,

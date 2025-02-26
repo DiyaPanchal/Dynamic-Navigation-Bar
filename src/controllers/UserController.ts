@@ -98,7 +98,6 @@ export const userUpdate = async (
     const {
       username,
       email,
-      password,
       role,
       accessibleMenus,
       menuAccessExpiry,
@@ -153,9 +152,9 @@ export const userUpdate = async (
      );
    }
 
-    if (password) {
-      user.password = await bcrypt.hash(password, 10);
-    }
+    // if (password) {
+    //   user.password = await bcrypt.hash(password, 10);
+    // }
     if (username) user.username = username;
     if (email) user.email = email;
     if (role) user.role = role;
