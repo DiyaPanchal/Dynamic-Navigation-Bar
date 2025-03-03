@@ -10,12 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@popperjs/core": "^2.11.8",
     "@shadcn/ui": "^0.0.4",
+    "bootstrap": "^5.3.3",
     "dotenv": "^16.4.7",
     "jwt-decode": "^4.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^7.1.5"
+    "react-router-dom": "^7.1.5",
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -27,6 +30,7 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
+    "sass": "^1.85.1",
     "vite": "^6.0.5"
   }
 }

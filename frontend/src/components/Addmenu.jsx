@@ -72,8 +72,9 @@ function AddMenu() {
   };
 
   return (
-    <div className="loginpage">
-      <h2 className="loginheading">Add Menu Item</h2>
+    <div className="login-container">
+      <h2 className="login-title">Add Menu Item</h2>
+      <label>Menu Title</label>
       <input
         type="text"
         placeholder="Title"
@@ -81,17 +82,21 @@ function AddMenu() {
         onChange={(e) => setTitle(e.target.value)}
       />
       <div className="menu-parent">
-      <label> Select Parent Heading:</label>
-      <select value={parent} onChange={(e) => setParent(e.target.value)}>
-        <option value="">Parent Heading</option>
-        {menuList.map((menu) => (
-          <option key={menu._id} value={menu._id}>
-            {menu.title}
-          </option>
-        ))}
-      </select>
+        <label> Select Parent Heading</label>
+        <select
+          className="register-role"
+          value={parent}
+          onChange={(e) => setParent(e.target.value)}
+        >
+          <option value="">Parent Heading</option>
+          {menuList.map((menu) => (
+            <option key={menu._id} value={menu._id}>
+              {menu.title}
+            </option>
+          ))}
+        </select>
       </div>
-
+      <label>Priority</label>
       <input
         type="number"
         placeholder="Priority"
@@ -99,7 +104,7 @@ function AddMenu() {
         onChange={(e) => setPriority(Math.max(0, Number(e.target.value)))}
       />
 
-      <div className="menu-buttons">
+      <div className="form-buttons">
         <button onClick={handleAddMenuItem}>Save & Back</button>
         <button onClick={handleAddAnother}>Save & Add Another</button>
         <button onClick={handleCancel}>Cancel</button>

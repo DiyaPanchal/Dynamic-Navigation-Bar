@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { FaCaretDown } from "react-icons/fa"; 
 
 const Menu = ({ menuData = null }) => {
   const [menuItems, setMenuItems] = useState(menuData || []);
@@ -50,23 +51,28 @@ const Menu = ({ menuData = null }) => {
     return rootItems;
   };
 
-  const MenuItem = ({ item }) => {
-    return (
-      <li className="nav-item">
-        <a href="https://www.google.com/">{item.title}</a>
-        {item.children?.length > 0 && (
-          <ul className="dropdown-content">
-            {item.children.map((child) => (
-              <MenuItem key={child._id} item={child} />
-            ))}
-          </ul>
-        )}
-      </li>
-    );
-  };
+ const MenuItem = ({ item }) => {
+   return (
+     <li className="nav-item">
+       <a href="#">
+         {item.title}
+         {item.children?.length > 0 && (
+           <FaCaretDown className="dropdown-icon" />
+         )}
+       </a>
+       {item.children?.length > 0 && (
+         <ul className="dropdown-content">
+           {item.children.map((child) => (
+             <MenuItem key={child._id} item={child} />
+           ))}
+         </ul>
+       )}
+     </li>
+   );
+ };
 
   return (
-    <div className="loginpage">
+    <div>
       <nav className="navbar">
         <ul className="nav-links">
           {loading ? (

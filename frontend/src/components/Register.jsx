@@ -10,16 +10,16 @@ function Register() {
   const [selectedMenus, setSelectedMenus] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     fetchMenus();
   }, []);
+
   const fetchMenus = async () => {
     try {
       setLoading(true);
       const response = await fetch("http://localhost:3000/menus");
       if (!response.ok) throw new Error("Failed to fetch menus");
-
       const data = await response.json();
       if (!data.menus || !Array.isArray(data.menus)) {
         throw new Error("Invalid menu data format");
@@ -103,6 +103,7 @@ function Register() {
       alert(error.message);
     }
   };
+
   const handleBackRegister = async () => {
     await handleRegister();
     navigate("/dashboard");
@@ -117,78 +118,84 @@ function Register() {
   };
 
   return (
-    <div className="loginpage">
-      <h2 className="loginheading">Register</h2>
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Role (admin/user)"
-        value={role}
-        onChange={(e) => setRole(e.target.value)}
-      />
-      <div className="menu-select">
-        <label>Select Accessible Menus:</label>
-        {loading ? (
-          <p>Loading menu options...</p>
-        ) : (
-          <>
-            <select onChange={handleMenuSelection}>
-              <option value="">Select Menu</option>
-              {menuOptions.map((menu) => (
-                <option key={menu._id} value={menu._id}>
-                  {menu.title}
-                </option>
-              ))}
-            </select>
-
-            <div className="selected-menu">
-              <label>Selected Menus:</label>
-              {selectedMenus.length > 0 ? (
-                <ul>
-                  {selectedMenus.map((menu) => (
-                    <li key={menu.menuId}>
-                      {menu.title}
-                      <input className="date-input"
-                        type="date"
-                        value={menu.expiryDate}
-                        onChange={(e) =>
-                          handleExpiryChange(menu.menuId, e.target.value)
-                        }
-                      />
-                      <span
-                        className="cross-button"
-                        onClick={() => handleRemoveMenu(menu.menuId)}
-                      >
-                        x
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No menus selected</p>
-              )}
-            </div>
-          </>
-        )}
+    <div className="register-container">
+      <h2 className="login-title">Register</h2>
+      <div className="register-details">
+        <div className="register-input">
+          <label>Username</label>
+          <input
+            type="text"
+            placeholder="Name"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <label>Email Address</label>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <label>Password</label>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <label>Role</label>
+          <select className="register-role" value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div className="menu-select">
+          <label>Select Accessible Menus:</label>
+          {loading ? (
+            <p>Loading menu options...</p> 
+          ) : (
+            <>
+              <select className="register-role" onChange={handleMenuSelection}>
+                <option value="">Select Menu</option>
+                {menuOptions.map((menu) => (
+                  <option key={menu._id} value={menu._id}>
+                    {menu.title}
+                  </option>
+                ))}
+              </select>
+              <div className="selected-menu">
+                <label>Selected Menus:</label>
+                {selectedMenus.length > 0 ? (
+                  <ul>
+                    {selectedMenus.map((menu) => (
+                      <li key={menu.menuId}>
+                        {menu.title}
+                        <input
+                          className="date-input"
+                          type="date"
+                          value={menu.expiryDate}
+                          onChange={(e) =>
+                            handleExpiryChange(menu.menuId, e.target.value)
+                          }
+                        />
+                        <span
+                          className="cross-button"
+                          onClick={() => handleRemoveMenu(menu.menuId)}
+                        >
+                          x
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No menus selected</p>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </div>
-      <div className="menu-buttons">
+      <div className="form-buttons">
         <button onClick={handleBackRegister}>Save & Back</button>
         <button onClick={handleRegister}>Save & Add Another</button>
         <button onClick={handleCancel}>Cancel</button>

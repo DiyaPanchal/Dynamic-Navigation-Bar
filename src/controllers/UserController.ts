@@ -27,11 +27,10 @@ export const userLogin = async (req: Request, res: Response): Promise<any> => {
         .json({ message: "Access Denied, Invalid Password!" });
     }
 
-    const token = jwt.sign({ user_id: user._id, role: user.role }, secretKey, {
+    const token = jwt.sign({ user_id: user._id, role: user.role,username:user.username }, secretKey, {
       expiresIn: "1h",
     });
-
-    res.json({ token });
+       res.json({ token });
   } catch (err) {
     console.error("Login Error:", err);
     return res.status(500).json({ message: "Internal Server Error", err });

@@ -198,7 +198,7 @@ const updateUser = async () => {
       })),
     };
 
-    console.log("Final Payload Sent:", updatedData);
+    // console.log("Final Payload Sent:", updatedData);
 
     const response = await fetch(
       `http://localhost:3000/update/${selectedUser._id}`,
@@ -224,8 +224,8 @@ const updateUser = async () => {
 };
 
   return (
-    <div className="loginpage editpage">
-      <h2 className="loginheading">User Management</h2>
+    <div className="edit-table-container">
+      <h2 className="login-title">User Management</h2>
       <input
         type="text"
         placeholder="Search users..."
@@ -250,7 +250,7 @@ const updateUser = async () => {
               <td>{user.role}</td>
               <td>
                 {user.role !== "admin" && (
-                  <div className="action-buttons">
+                  <div className="form-buttons">
                     <button onClick={() => selectUser(user)}>Edit</button>
                     <button onClick={() => deleteUser(user._id)}>Remove</button>
                   </div>
@@ -262,7 +262,7 @@ const updateUser = async () => {
       </table>
       {selectedUser && (
         <div>
-          <h3>Edit User</h3>
+          <h3 className="login-title">Edit User</h3>
           <input type="email" value={selectedUser.email} disabled />
           <input
             type="text"
@@ -272,9 +272,9 @@ const updateUser = async () => {
             }
           />
 
-          <label>Role:</label>
+          <label>Role</label>
           <select
-            className="edit-role"
+            className="register-role"
             value={selectedUser.role}
             onChange={(e) =>
               setSelectedUser({ ...selectedUser, role: e.target.value })
@@ -284,13 +284,12 @@ const updateUser = async () => {
             <option value="admin">Admin</option>
           </select>
           <div className="edit-section">
-            <label>Selected Menus:</label>
+            <label>Selected Menus</label>
             {selectedMenus.map((menu) => {
               const menuData = menus.find((m) => m._id === menu.menuId);
-              console.log("Selected menus", selectedMenus);
-        
-              console.log("menuData",menuData);
-              console.log("menus",menus);
+              // console.log("Selected menus", selectedMenus);
+              // console.log("menuData", menuData);
+              // console.log("menus", menus);
 
               return (
                 menuData && (
@@ -318,8 +317,12 @@ const updateUser = async () => {
             })}
           </div>
 
-          <label>Select Accessible Menus:</label>
-          <select onChange={(e) => handleMenuSelect(e.target.value)} value="">
+          <label>Select Accessible Menus</label>
+          <select
+            className="register-role"
+            onChange={(e) => handleMenuSelect(e.target.value)}
+            value=""
+          >
             <option value="" disabled>
               Select Menu
             </option>
@@ -348,7 +351,7 @@ const updateUser = async () => {
             </div>
           )}
 
-          <div className="menu-buttons">
+          <div className="form-buttons">
             <button onClick={updateUser} disabled={loading}>
               Save
             </button>
